@@ -3,8 +3,8 @@
 namespace Captcha\Bundle\CaptchaBundle\Integration;
 
 use Captcha\Bundle\CaptchaBundle\Support\LibraryLoader;
-use Captcha\Bundle\CaptchaBundle\Helpers\BotDetectCaptchaHelper;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Captcha\Bundle\CaptchaBundle\Helpers\BotDetectCaptchaHelper;
 
 class BotDetectCaptcha
 {
@@ -25,7 +25,7 @@ class BotDetectCaptcha
 
     /**
      * Constructor.
-     * 
+     *
      * @param ContainerInterface  $container
      */
     public function __construct(ContainerInterface $container)
@@ -53,9 +53,9 @@ class BotDetectCaptcha
 
     /**
      * Get an instance of the Captcha class.
-     * 
+     *
      * @param string  $configName
-     * 
+     *
      * @return object
      */
     public function getInstance($configName = '')
@@ -65,7 +65,7 @@ class BotDetectCaptcha
             $libraryLoader = new LibraryLoader($this->container);
             $libraryLoader->load();
 
-            $this->captcha = new BotDetectCaptchaHelper($configName);
+            $this->captcha = new BotDetectCaptchaHelper($configName, null, $this->container);
         }
 
         return $this->captcha;
@@ -85,5 +85,5 @@ class BotDetectCaptcha
 // static field initialization
 BotDetectCaptcha::$productInfo = array(
     'name' => 'BotDetect 4 PHP Captcha generator integration for the Symfony framework',
-    'version' => '4.2.9'
+    'version' => '4.2.9',
 );

@@ -2,15 +2,19 @@
 
 namespace Captcha\Bundle\CaptchaBundle\Helpers;
 
-use Captcha\Bundle\CaptchaBundle\Support\LibraryLoader;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Captcha\Bundle\CaptchaBundle\Routing\Generator\UrlGenerator;
 use Captcha\Bundle\CaptchaBundle\Support\UserCaptchaConfiguration;
-use Symfony\Component\Validator\Exception\InvalidArgumentException;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Validator\Exception\InvalidArgumentException;
 
 class BotDetectCaptchaHelper
 {
+    /*
+     * @var object
+     */
+    private $container;
     /**
      * @var object
      */
@@ -20,15 +24,23 @@ class BotDetectCaptchaHelper
      * Constructor.
      *
      * @param  string  $configName
+     * @param  string  $captchaInstanceId
+     * @param  ContainerInterface  $container
      *
      * @return void
      */
-    public function __construct($configName, $captchaInstanceId = null)
+    public function __construct($configName, $captchaInstanceId = null, ContainerInterface $container = null)
     {
         // get captcha config
         $captchaId = $configName;
-        $config = UserCaptchaConfiguration::get($captchaId);
-
+        $configParameters = $container->getParameter('captcha.config.captchaConfig');
+        if (isset($configParameters[$captchaId])) {
+            $config = $configParameters[$captchaId];
+            $config = array_change_key_case($config, CASE_LOWER);
+            $config['CaptchaId'] = $captchaId;
+        } else {
+            $config = UserCaptchaConfiguration::get($captchaId);
+        }
         if (null === $config) {
             throw new InvalidArgumentException(sprintf('The "%s" option could not be found in app/config/captcha.php file.', $captchaId));
         }
@@ -48,7 +60,7 @@ class BotDetectCaptchaHelper
      * Initialize CAPTCHA object instance.
      *
      * @param  array  $config
-     * 
+     *
      * @return void
      */
     public function initCaptcha(array $config, $captchaInstanceId = null)
@@ -70,7 +82,7 @@ class BotDetectCaptchaHelper
     public function Html()
     {
         $captchaUrlGenerator = UrlGenerator::getInstance();
-        $html  = \BDC_HtmlHelper::StylesheetInclude($captchaUrlGenerator->generate('captcha_handler', array(), UrlGeneratorInterface::RELATIVE_PATH) . '?get=bdc-layout-stylesheet.css');
+        $html = \BDC_HtmlHelper::StylesheetInclude($captchaUrlGenerator->generate('captcha_handler', array(), UrlGeneratorInterface::RELATIVE_PATH) . '?get=bdc-layout-stylesheet.css');
         $html .= $this->captcha->Html();
         return $html;
     }
@@ -95,56 +107,56 @@ class BotDetectCaptchaHelper
      */
     public function __get($name)
     {
-        if (method_exists($this->captcha->get_CaptchaBase(), ($method = 'get_'.$name))) {
-          return $this->captcha->get_CaptchaBase()->$method();
+        if (method_exists($this->captcha->get_CaptchaBase(), ($method = 'get_' . $name))) {
+            return $this->captcha->get_CaptchaBase()->$method();
         }
 
-        if (method_exists($this->captcha, ($method = 'get_'.$name))) {
+        if (method_exists($this->captcha, ($method = 'get_' . $name))) {
             return $this->captcha->$method();
         }
 
-        if (method_exists($this, ($method = 'get_'.$name))) {
+        if (method_exists($this, ($method = 'get_' . $name))) {
             return $this->$method();
         }
     }
 
     public function __isset($name)
     {
-        if (method_exists($this->captcha->get_CaptchaBase(), ($method = 'isset_'.$name))) {
+        if (method_exists($this->captcha->get_CaptchaBase(), ($method = 'isset_' . $name))) {
             return $this->captcha->get_CaptchaBase()->$method();
         }
 
-        if (method_exists($this->captcha, ($method = 'isset_'.$name))) {
+        if (method_exists($this->captcha, ($method = 'isset_' . $name))) {
             return $this->captcha->$method();
-        } 
+        }
 
-        if (method_exists($this, ($method = 'isset_'.$name))) {
+        if (method_exists($this, ($method = 'isset_' . $name))) {
             return $this->$method();
         }
     }
 
     public function __set($name, $value)
     {
-        if (method_exists($this->captcha->get_CaptchaBase(), ($method = 'set_'.$name))) {
+        if (method_exists($this->captcha->get_CaptchaBase(), ($method = 'set_' . $name))) {
             return $this->captcha->get_CaptchaBase()->$method($value);
         }
 
-        if (method_exists($this->captcha, ($method = 'set_'.$name))) {
+        if (method_exists($this->captcha, ($method = 'set_' . $name))) {
             $this->captcha->$method($value);
-        } else if (method_exists($this, ($method = 'set_'.$name))) {
+        } else if (method_exists($this, ($method = 'set_' . $name))) {
             $this->$method($value);
         }
     }
 
     public function __unset($name)
     {
-        if (method_exists($this->captcha->get_CaptchaBase(), ($method = 'unset_'.$name))) {
+        if (method_exists($this->captcha->get_CaptchaBase(), ($method = 'unset_' . $name))) {
             return $this->captcha->get_CaptchaBase()->$method();
         }
 
-        if (method_exists($this->captcha, ($method = 'unset_'.$name))) {
+        if (method_exists($this->captcha, ($method = 'unset_' . $name))) {
             $this->captcha->$method();
-        } else if (method_exists($this, ($method = 'unset_'.$name))) {
+        } else if (method_exists($this, ($method = 'unset_' . $name))) {
             $this->$method();
         }
     }

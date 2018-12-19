@@ -89,7 +89,7 @@ class CaptchaHandlerController extends Controller
             throw new BadRequestHttpException('Invalid instance id.');
         }
 
-        return new BotDetectCaptchaHelper($captchaId, $captchaInstanceId);
+        return new BotDetectCaptchaHelper($captchaId, $captchaInstanceId,$this->container);
     }
 
     /**
